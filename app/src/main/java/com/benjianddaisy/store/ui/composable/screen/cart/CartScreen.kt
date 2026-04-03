@@ -3,16 +3,14 @@ package com.benjianddaisy.store.ui.composable.screen.cart
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,10 +20,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -66,9 +64,8 @@ fun CartScreen(
         cartItemsState = cartItemsState,
         modifier = modifier,
         totalPrice = totalPrice,
-        onPlusItemClick = { itemId -> viewModel.incrementProductInCart(itemId) },
-        onMinusItemClick = { itemId -> viewModel.decrementItemInCart(itemId) },
-        onDeleteItemClick = { itemId -> viewModel.deleteFromCart(itemId) },
+        onPlusItemClick = { viewModel.incrementProductInCart(it) },
+        onMinusItemClick = { viewModel.decrementItemInCart(it) },
         onCompleteOrderButtonClick = onNavigateToCheckoutScreen,
     )
 }
@@ -80,87 +77,29 @@ private fun CartScreenContent(
     totalPrice: Double,
     onPlusItemClick: (Int) -> Unit,
     onMinusItemClick: (Int) -> Unit,
-    onDeleteItemClick: (Int) -> Unit,
     onCompleteOrderButtonClick: () -> Unit,
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(BJDYSBackground),
+    ) {
         BJDYSContentWrapper(
             dataState = cartItemsState,
+            modifier = Modifier.weight(1f),
             dataPopulated = {
                 val items = (cartItemsState as DataUiState.Populated).data
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(BJDYSBackground)
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize(),
                 ) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = 160.dp),
-                    ) {
-                        item {
-                            Text(
-                                text = "${items.size} ITEM${if (items.size != 1) "S" else ""} IN YOUR CART",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = BJDYSMutedText,
-                                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-                            )
-                        }
-                        items(items, key = { it.productId }) { item ->
-                            CartItemRow(
-                                item = item,
-                                onPlus = { onPlusItemClick(item.productId) },
-                                onMinus = { onMinusItemClick(item.productId) },
-                                onDelete = { onDeleteItemClick(item.productId) },
-                            )
-                            HorizontalDivider(color = BJDYSDivider)
-                        }
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomCenter)
-                            .background(BJDYSSurface)
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
-                            .navigationBarsPadding()
-                    ) {
-                        HorizontalDivider(color = BJDYSDivider)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(
-                                text = "TOTAL",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = BJDYSMutedText,
-                            )
-                            Text(
-                                text = "£%.2f".format(totalPrice),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = BJDYSOnSurface,
-                                fontWeight = FontWeight.Normal,
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { onCompleteOrderButtonClick() },
-                            modifier = Modifier.fillMaxWidth().height(52.dp),
-                            shape = RoundedCornerShape(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = BJDYSPrimary,
-                                contentColor = BJDYSBackground,
-                            ),
-                        ) {
-                            Text(
-                                text = "PROCEED TO CHECKOUT",
-                                fontFamily = FontFamily.SansSerif,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 12.sp,
-                                letterSpacing = 2.sp,
-                            )
-                        }
+                    items(items) { item ->
+                        CartItemRow(
+                            item = item,
+                            onPlusClick = { onPlusItemClick(item.productId) },
+                            onMinusClick = { onMinusItemClick(item.productId) },
+                        )
                     }
                 }
             },
@@ -171,84 +110,139 @@ private fun CartScreenContent(
                 )
             },
         )
+
+        if (cartItemsState is DataUiState.Populated) {
+            Surface(
+                shadowElevation = 4.dp,
+                color = BJDYSSurface,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "ORDER TOTAL",
+                            fontFamily = FontFamily.SansSerif,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 11.sp,
+                            letterSpacing = 1.5.sp,
+                            color = BJDYSMutedText,
+                        )
+                        Text(
+                            text = "£%.2f".format(totalPrice),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = BJDYSOnSurface,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = onCompleteOrderButtonClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = BJDYSAccent,
+                            contentColor = BJDYSPrimary,
+                        ),
+                    ) {
+                        Text(
+                            text = "PROCEED TO CHECKOUT",
+                            fontFamily = FontFamily.SansSerif,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 11.sp,
+                            letterSpacing = 2.sp,
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
 private fun CartItemRow(
     item: CartItemUiState,
-    onPlus: () -> Unit,
-    onMinus: () -> Unit,
-    onDelete: () -> Unit,
+    onPlusClick: () -> Unit,
+    onMinusClick: () -> Unit,
 ) {
-    Row(
+    Surface(
+        color = BJDYSSurface,
+        shadowElevation = 0.dp,
         modifier = Modifier
             .fillMaxWidth()
-            .background(BJDYSSurface)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .border(width = 1.dp, color = BJDYSDivider),
     ) {
-        Image(
-            painter = painterResource(id = item.productImageRes ?: R.drawable.ic_launcher_background),
-            contentDescription = item.productTitle,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(72.dp)
-                .border(1.dp, BJDYSDivider),
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = item.productTitle,
-                style = MaterialTheme.typography.titleSmall,
-                color = BJDYSOnSurface,
-                maxLines = 2,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "£%.2f".format(item.productPrice),
-                style = MaterialTheme.typography.bodyMedium,
-                color = BJDYSAccent,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = { onMinus() },
-                    modifier = Modifier.size(32.dp),
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (item.productImageRes != null) {
+                Image(
+                    painter = painterResource(id = item.productImageRes),
+                    contentDescription = item.productTitle,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(72.dp)
+                        .background(BJDYSDivider),
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.productTitle,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = BJDYSOnSurface,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "£%.2f".format(item.productPrice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = BJDYSAccent,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                TextButton(
+                    onClick = onMinusClick,
+                    modifier = Modifier.size(36.dp),
+                    contentPadding = PaddingValues(0.dp),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.minus_svgrepo_com),
-                        contentDescription = stringResource(R.string.decrease_quantity_icon_description),
-                        tint = BJDYSOnSurface,
-                        modifier = Modifier.size(16.dp),
+                    Text(
+                        text = "−",
+                        fontSize = 20.sp,
+                        color = BJDYSPrimary,
+                        fontWeight = FontWeight.Light,
                     )
                 }
                 Text(
-                    text = "${item.quantity}",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = item.quantity.toString(),
+                    style = MaterialTheme.typography.titleSmall,
                     color = BJDYSOnSurface,
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.padding(horizontal = 4.dp),
                 )
-                IconButton(
-                    onClick = { onPlus() },
-                    modifier = Modifier.size(32.dp),
+                TextButton(
+                    onClick = onPlusClick,
+                    modifier = Modifier.size(36.dp),
+                    contentPadding = PaddingValues(0.dp),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.plus_svgrepo_com),
-                        contentDescription = stringResource(R.string.increase_quantity_icon_description),
-                        tint = BJDYSOnSurface,
-                        modifier = Modifier.size(16.dp),
+                    Text(
+                        text = "+",
+                        fontSize = 20.sp,
+                        color = BJDYSPrimary,
+                        fontWeight = FontWeight.Light,
                     )
                 }
             }
-        }
-        IconButton(onClick = { onDelete() }) {
-            Icon(
-                painter = painterResource(R.drawable.trash_svgrepo_com),
-                contentDescription = stringResource(R.string.delete_item_icon_description),
-                tint = BJDYSMutedText,
-                modifier = Modifier.size(18.dp),
-            )
         }
     }
 }

@@ -1,12 +1,12 @@
 package com.benjianddaisy.store.ui.composable.screen.checkout
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,7 +45,6 @@ import com.benjianddaisy.store.ui.theme.BJDYSDivider
 import com.benjianddaisy.store.ui.theme.BJDYSMutedText
 import com.benjianddaisy.store.ui.theme.BJDYSOnSurface
 import com.benjianddaisy.store.ui.theme.BJDYSPrimary
-import com.benjianddaisy.store.ui.theme.BJDYSSurface
 import com.benjianddaisy.store.ui.viewmodel.CheckoutViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -108,15 +107,18 @@ private fun CheckoutContent(
             .fillMaxSize()
             .background(BJDYSBackground)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 24.dp)
-            .navigationBarsPadding()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = "YOUR DETAILS",
-            style = MaterialTheme.typography.labelMedium,
+            text = "CONTACT DETAILS",
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.Medium,
+            fontSize = 11.sp,
+            letterSpacing = 1.5.sp,
             color = BJDYSMutedText,
+            modifier = Modifier.padding(bottom = 4.dp),
         )
-        Spacer(modifier = Modifier.height(24.dp))
 
         CheckoutTextField(
             input = customerFirstName,
@@ -124,9 +126,10 @@ private fun CheckoutContent(
             labelText = stringResource(R.string.checkout_text_field_first_name),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
         )
-        Spacer(modifier = Modifier.height(16.dp))
 
         CheckoutTextField(
             input = customerLastName,
@@ -134,9 +137,10 @@ private fun CheckoutContent(
             labelText = stringResource(R.string.checkout_text_field_last_name),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
         )
-        Spacer(modifier = Modifier.height(16.dp))
 
         CheckoutTextField(
             input = customerEmail,
@@ -148,40 +152,47 @@ private fun CheckoutContent(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Done,
             ),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            keyboardActions = KeyboardActions(
+                onDone = { focusManager.clearFocus() }
+            ),
         )
+
         if (isEmailInvalid) {
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Please enter a valid email address",
+                text = "Please enter a valid email address.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
             )
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         HorizontalDivider(color = BJDYSDivider)
-        Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "COLLECTION",
-            style = MaterialTheme.typography.labelMedium,
+            text = "ORDER SUMMARY",
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.Medium,
+            fontSize = 11.sp,
+            letterSpacing = 1.5.sp,
             color = BJDYSMutedText,
+            modifier = Modifier.padding(top = 8.dp),
         )
-        Spacer(modifier = Modifier.height(8.dp))
+
         Text(
-            text = "Your order will be ready to collect from our showroom within 24 hours of confirmation.",
+            text = "Your order will be ready for collection from our showroom within 24 hours of confirmation. We will contact you to arrange collection.",
             style = MaterialTheme.typography.bodyMedium,
-            color = BJDYSOnSurface,
+            color = BJDYSMutedText,
             lineHeight = 22.sp,
         )
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { onPlaceOrderButtonClick() },
+            onClick = onPlaceOrderButtonClick,
             enabled = isButtonEnabled,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             shape = RoundedCornerShape(0.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = BJDYSAccent,
@@ -191,7 +202,7 @@ private fun CheckoutContent(
             ),
         ) {
             Text(
-                text = stringResource(R.string.button_confirm_order_label).uppercase(),
+                text = stringResource(R.string.button_confirm_order_label),
                 fontFamily = FontFamily.SansSerif,
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp,
@@ -227,10 +238,9 @@ fun CheckoutTextField(
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         singleLine = true,
-        shape = RoundedCornerShape(0.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = BJDYSSurface,
-            unfocusedContainerColor = BJDYSSurface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedTextColor = BJDYSOnSurface,
             unfocusedTextColor = BJDYSOnSurface,
             focusedBorderColor = BJDYSPrimary,

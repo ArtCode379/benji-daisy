@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -39,6 +39,7 @@ import com.benjianddaisy.store.ui.theme.BJDYSOnSurface
 import com.benjianddaisy.store.ui.theme.BJDYSSurface
 import com.benjianddaisy.store.ui.viewmodel.OrderViewModel
 import org.koin.androidx.compose.koinViewModel
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun OrdersScreen(
@@ -58,29 +59,23 @@ private fun OrdersContent(
     ordersState: DataUiState<List<OrderEntity>>,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(BJDYSBackground),
+    ) {
         BJDYSContentWrapper(
             dataState = ordersState,
             dataPopulated = {
                 val orders = (ordersState as DataUiState.Populated).data
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(BJDYSBackground),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize(),
                 ) {
-                    item {
-                        Text(
-                            text = "${orders.size} ORDER${if (orders.size != 1) "S" else ""}",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = BJDYSMutedText,
-                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-                        )
-                    }
-                    items(orders, key = { it.orderNumber }) { order ->
+                    items(orders) { order ->
                         OrderCard(order = order)
-                        HorizontalDivider(color = BJDYSDivider)
                     }
-                    item { Spacer(modifier = Modifier.height(24.dp)) }
                 }
             },
             dataEmpty = {
@@ -95,17 +90,19 @@ private fun OrdersContent(
 
 @Composable
 private fun OrderCard(order: OrderEntity) {
+    val formatter = DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm")
+
     Surface(
+        color = BJDYSSurface,
+        shadowElevation = 0.dp,
         modifier = Modifier
             .fillMaxWidth()
-            .background(BJDYSSurface),
-        color = BJDYSSurface,
+            .border(width = 1.dp, color = BJDYSDivider),
     ) {
-        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = stringResource(R.string.order_number, order.orderNumber),
@@ -115,38 +112,41 @@ private fun OrderCard(order: OrderEntity) {
                 )
                 Text(
                     text = "£%.2f".format(order.price),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     color = BJDYSAccent,
                     fontWeight = FontWeight.Medium,
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = stringResource(R.string.order_customer, order.customerFirstName, order.customerLastName),
+                text = "${order.customerFirstName} ${order.customerLastName}",
                 style = MaterialTheme.typography.bodySmall,
                 color = BJDYSMutedText,
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = order.customerEmail,
+                text = order.timestamp.format(formatter),
                 style = MaterialTheme.typography.bodySmall,
                 color = BJDYSMutedText,
             )
             Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier
-                    .background(BJDYSBackground)
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-            ) {
-                Text(
-                    text = "READY TO COLLECT",
-                    color = BJDYSAccent,
-                    fontFamily = FontFamily.SansSerif,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 9.sp,
-                    letterSpacing = 1.5.sp,
-                )
-            }
+            HorizontalDivider(color = BJDYSDivider)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "ITEMS",
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Medium,
+                fontSize = 9.sp,
+                letterSpacing = 1.5.sp,
+                color = BJDYSMutedText,
+                modifier = Modifier.padding(bottom = 6.dp),
+            )
+            Text(
+                text = order.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = BJDYSOnSurface,
+                lineHeight = 20.sp,
+            )
         }
     }
 }

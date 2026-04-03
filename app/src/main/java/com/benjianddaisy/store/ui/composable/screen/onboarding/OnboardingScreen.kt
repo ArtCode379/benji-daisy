@@ -2,6 +2,7 @@ package com.benjianddaisy.store.ui.composable.screen.onboarding
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,7 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Image
 import com.benjianddaisy.store.R
 import com.benjianddaisy.store.ui.theme.BJDYSAccent
 import com.benjianddaisy.store.ui.theme.BJDYSBackground
